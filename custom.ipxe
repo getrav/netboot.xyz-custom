@@ -1,12 +1,56 @@
-#!ipxe
-###
-### netboot.xyz-custom menu
-###
+#!ipxe 
+### 
+### netboot.xyz custom menu 
+### 
+ 
+:custom 
+clear custom_choice 
+menu Custom Boot Options 
+item --gap -- Custom Operating Systems ------------- 
+item RAID_Linux Custom Linux ISO for DELL PERC RAID
+item RAID_DOS   FreeDOS v2.4 Custom (with RAID drivers) 
+item truenas    TrueNAS 
+item windows    Windows ISO NVIDIA drivers 
+item --gap -- Options ----------------------------- 
+item url_set    ${space} Linux Base URL [ ${localurl} ]
+item refresh    ${space} Refresh this menu
+item --gap -- -------------------------------------- 
+item returntomain    Return to Main Menu 
+choose custom_choice || goto custom_exit 
+echo ${cls} 
+goto ${custom_choice} 
 
-:start
-echo Hello world!
-sleep 10
-goto custom_exit
+:refresh
+chain custom.ipxe || goto custom_exit
+ 
+:url_set
+echo Set the HTTP URL of your Linux files with the trailing slash:
+echo e.g. http://192.168.1.4:8080/dellpreclinux/
+echo
+echo -n URL: ${} && read localurl
+echo
+echo netboot.xyz will attempt to load the following files:
+echo ${localurl}vmlinuz
+echo ${localurl}initrd.img
+echo ${localurl}filesystem.squashfs
+echo
+prompt Press any key to return to Custom Menu...
+goto custom
 
-:custom_exit
-exit 0
+:RAID_DOS 
+imgfree 
+kernel ${memdisk} iso raw 
+initrd http://192.168.1.4:8080/deesh-FreeDOS-v2.4.iso 
+boot || goto custom_exit 
+ 
+:RAID_LINUX
+isset ${localurl} || set localurl http://192.168.1.4:8080/dellpreclinux/
+imgfree
+kernel ${localurl}vmlinuz.amd64 || echo "Failed to load kernel"
+initrd ${localurl}initrd.img.amd64 || echo "Failed to load initrd"
+boot || echo "Boot failed"
+:custom_exit 
+exit 
+ 
+:returntomain 
+chain menu.ipxe
