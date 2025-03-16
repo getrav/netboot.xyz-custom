@@ -9,8 +9,6 @@ menu Custom Boot Options
 item --gap -- Custom Operating Systems -------------
 item RAID_Linux Custom Linux ISO for DELL PERC RAID
 item RAID_DOS   FreeDOS v2.4 Custom (with RAID drivers)
-item truenas    TrueNAS
-item windows    Windows ISO NVIDIA drivers
 item --gap -- Options -----------------------------
 item url_set    ${space} Linux Base URL [ ${localurl} ]
 item refresh    ${space} Refresh this menu
@@ -30,7 +28,7 @@ echo
 echo -n URL: ${} && read localurl
 echo
 echo netboot.xyz will attempt to load the following files:
-echo ${localurl}vmlinuz.amd64
+echo ${localurl}vmlinuz-amd64
 echo ${localurl}initrd.img.amd64
 echo
 prompt Press any key to return to Custom Menu...
@@ -45,8 +43,8 @@ boot || goto custom_exit
 :RAID_Linux
 isset localurl || set localurl http://192.168.1.4/dellperclinux/
 imgfree
-echo Loading kernel from: ${localurl}vmlinuz.amd64
-kernel ${localurl}vmlinuz.amd64 || echo "Failed to load kernel"
+echo Loading kernel from: ${localurl}vmlinuz-amd64
+kernel ${localurl}vmlinuz-amd64 || echo "Failed to load kernel"
 echo Loading initrd from: ${localurl}initrd.img.amd64
 initrd ${localurl}initrd.img.amd64 || echo "Failed to load initrd"
 boot || echo "Boot failed"
